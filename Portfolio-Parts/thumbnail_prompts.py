@@ -1,5 +1,5 @@
 import re
-from typing import List, Dict
+from typing import List
 
 class SystemPrompts:
     def __init__(self):
@@ -79,6 +79,7 @@ Evaluation criteria:
    - Competitive differentiation
 """
 
+
 class UserPrompts:
     def __init__(self):
         self.THUMBNAIL_IDEA_GENERATION = """
@@ -100,17 +101,17 @@ Evaluate if the image is suitable as a thumbnail and explain why.
     def get_params(self, prompt_name: str) -> List[str]:
         """
         Extract all placeholder parameters from a given prompt template.
-        
+
         Args:
             prompt_name: Name of the prompt template to analyze
-            
+
         Returns:
             List of parameter names found in the template
         """
         if not hasattr(self, prompt_name):
             raise ValueError(f"Prompt template '{prompt_name}' not found")
-            
+
         prompt_template = getattr(self, prompt_name)
         # Find all strings between curly braces using regex
-        params = re.findall(r'\{([^}]+)\}', prompt_template)
+        params = re.findall(r"\{([^}]+)\}", prompt_template)
         return sorted(list(set(params)))  # Remove duplicates and sort
