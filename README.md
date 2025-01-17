@@ -1,5 +1,8 @@
 # Manim Video Generation Pipeline ("AI Teaching Assistant")
 ## Elective Module "Generative AI" Portfolio
+Portfolioprüfung von Hans Buschow und Jeremy von Winckelmann
+
+GitHub Link: https://github.com/jvonwinckelmann/math-video-generation-portfolio/
 
 ### Projektziel
 Das Ziel des Projekts war die Erprobung verschiedener Sprachmodelle zur Generierung und Validierung von validem Python Code zur Generierung von Manim Videos angelehnt an den Stil von [3Blue1Brown](https://www.youtube.com/c/3blue1brown).
