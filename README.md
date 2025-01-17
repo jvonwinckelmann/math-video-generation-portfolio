@@ -1,57 +1,34 @@
-# Manim Video Generation Pipeline
+# Manim Video Generation Pipeline ("AI Teaching Assistant")
 ## Elective Module "Generative AI" Portfolio
 
-### Project Structure
+### Projektziel
+Das Ziel des Projekts war die Erprobung verschiedener Sprachmodelle zur Generierung und Validierung von validem Python Code zur Generierung von Manim Videos angelehnt an den Stil von [3Blue1Brown](https://www.youtube.com/c/3blue1brown).
+
+Dabei sollte ein Fokus auf die Verwendung von Open-Source und Open-Weight Modellen gesetzt werden, um größmögliche Kontrolle über die Modelle in der Pipeline zu haben und Kosten zu reduzieren.
+
+### Projektstruktur
+Das Projekt orientiert sich an dem nachfolgenden Flussdiagramm mit einigen Änderungen, die seit der Vorstellung der Idee in der Abschlusspräsentation des Kurses aufgekommen sind.
+
+Unter anderem wurden der Planungsteil, der Videogenerierungsteil und der Thumnailgenerierungsteil in seperate Pipelines/Workflows aufgeteilt und teils unterschiedlich umgesetzt, sodass nur noch die Ausgabe des Planungsteils für den Videogenerierungsteil und den Thumbnailgenerierungsteil benötigt wird und diese beiden Teile theoretisch parallel ausgeführt werden können. Hierdurch ist auch die etappenweise Ausführung der Pipeline möglich, sodass mögliche Fehler während der Ausführung nicht zu einem kompletten Verlust der Zwischenergebnisse führt.
+
+RAG wurde als optionale Komponente belassen und kann unter anderem den Kontext des Planungsteils mit Informationen aus Serlo Artikeln anreichern. Außerdem wurde ein RAG basierter Few-Shot Prompting Ansatz in `Tests/RAG_Vergleich.ipynb` durchgeführt und die Ergebnisse in `Tests/RAG_Vergleich.md` festgehalten.
+
 ![Flow](Assets/Images/FlowChart.png)
 
-### Models
-Language Model:
-- [Qwen2.5 7B Instruct](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct)
+Die Struktur der endgültigen Manim Code Generation und Thumbnail Generation Workflows können im Ordner `Pipeline-Visualizations` eingesehen werden.
 
-Code Language Model:
+### Verwendete Modelle
+Da die Pipeline auf eine Vielzahl verschiedener Modelle zur Generierung von Sprache, Code und Bildern zurückgreift, wurde die Pipeline für die Ausführung auf einer Cloud-Instanz mit A40 GPU entwickelt und optimiert. Auch wenn diese Hardware deutlich leistungsfähiger ist als Studierendenlaptops kann es dazu kommen, dass einige Modelle lange Ladezeiten aufweisen oder Abstürze durch zu lange Ausführung bzw. überlaufenden VRAM vorkommen.
+
+Large Language Model (Generator/Reviewer Video Planning):
+- [Phi-4](https://huggingface.co/microsoft/phi-4)
+
+Code Language Model (Code Generation, Function Calling):
 - [Qwen2.5-Coder 7B Instruct](https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct)
 
-Vision Language Model:
+Vision Language Model (Video Reviewer):
 - [Llama3.2 11B Vision Instruct](https://huggingface.co/meta-llama/Llama-3.2-11B-Vision-Instruct)
 
 Image Generation:
-- [Shuttle 3 Diffusion](https://huggingface.co/shuttleai/shuttle-3-diffusion)
 - [Shuttle 3.1 Aesthetic](https://huggingface.co/shuttleai/shuttle-3.1-aesthetic)
-- [Auraflow](https://huggingface.co/fal/AuraFlow)
-
-
-
-
-Vergleich: RAG vs. Chain-of-Judge (Reasoning Ansatz)
-
-Der Chain-of-Judge-Ansatz kombiniert reasoning (Schlussfolgerungen ziehen) mit einem Bewertungsmodell, das die Ergebnisse evaluiert. Im Vergleich dazu stützt sich ein Retrieval-Augmented-Generation-System (RAG) auf eine vorab vorbereitete Wissensbasis, um Antworten zu generieren. Dieser Unterschied hat Auswirkungen auf die Skalierbarkeit, Flexibilität und Qualität der Ergebnisse.
-
-1. RAG: Retrieval-Augmented-Generation
-	•	Funktionsweise:
-RAG greift auf eine Wissensdatenbank zurück, die relevante Informationen enthält, und kombiniert diese mit generativen Modellen, um Antworten zu erstellen. Der Prozess besteht aus:
-	1.	Abruf relevanter Informationen (Retrieval).
-	2.	Nutzung dieser Informationen, um die Antwort zu formulieren (Generation).
-	•	Herausforderungen:
-	•	Datenaufbereitung: Die Daten müssen in strukturierter und gut eingebetteter Form vorliegen. Dies erfordert erheblichen Aufwand bei der Vorbereitung.
-	•	Skalierungsprobleme: Je mehr Daten vorhanden sind, desto schwieriger wird es, präzise Treffer zu liefern. Die eingebetteten Daten können irrelevante oder redundante Inhalte enthalten, was die Antwortqualität beeinträchtigt.
-	•	Abhängigkeit von der Wissensbasis: Ohne gut gepflegte Daten liefert RAG keine relevanten Ergebnisse.
-
-2. Chain-of-Judge: Reasoning mit Bewertung
-	•	Funktionsweise:
-Der Chain-of-Judge-Ansatz verfolgt einen reasoning-basierten Ansatz, bei dem das System iterativ eine Antwort entwickelt und diese von einem Bewertungsmodell (“Judge”) validieren lässt. Der Ablauf:
-	1.	Reasoning: Das Modell zieht schrittweise Schlussfolgerungen auf Basis der Anfrage und interner Logik.
-	2.	Bewertung: Ein “Judge”-Modell prüft die Qualität und Konsistenz des Ergebnisses und optimiert die Antwort durch Feedback.
-	•	Vorteile:
-	•	Keine starre Wissensbasis: Der Ansatz ist flexibel und benötigt keine umfangreiche Vorab-Datenaufbereitung. Er arbeitet direkt mit dem Kontext der Anfrage.
-	•	Skalierbarkeit: Die Qualität der Ergebnisse bleibt unabhängig von der Menge der verfügbaren Daten konsistent, da der Fokus auf logischer Analyse und Bewertung liegt.
-	•	Dynamische Anpassung: Das Bewertungssystem sorgt dafür, dass die Antworten den Anforderungen der Anfrage besser entsprechen.
-
-| **Kriterium**          | **RAG**                                                | **Chain-of-Judge**                                      |
-|-------------------------|--------------------------------------------------------|--------------------------------------------------------|
-| **Datenbasis**          | Benötigt umfangreiche und kuratierte Datenbasis        | Arbeitet ohne feste Datenbasis, reasoning-orientiert   |
-| **Antwortqualität**     | Abhängig von der Datenqualität und -menge              | Konsistent durch iterative Bewertung                  |
-| **Skalierbarkeit**      | Begrenzte Präzision bei großen Datenmengen             | Hohe Präzision unabhängig von Datenmenge              |
-| **Flexibilität**        | Starr, auf vorbereitete Daten angewiesen               | Dynamisch, arbeitet direkt mit Anfrage und Kontext    |
-| **Rechenaufwand**       | Steigt mit der Datenmenge                              | Dauer bei zwischen 1:30 und 2 min. pro Anfrage       |
-
-Deswegen haben wir uns beim Video Planning für Chain of Judge entschieden.
+- [Stable Diffusion XL](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0)  (schnellere, aber schlechtere Alternative)
