@@ -1,6 +1,7 @@
 import re
 from typing import List
 
+
 class SystemPrompts:
     def __init__(self):
         self.THUMBNAIL_IDEA_GENERATION = """
@@ -85,7 +86,7 @@ class UserPrompts:
         self.THUMBNAIL_IDEA_GENERATION = """
 Generate a list of {num_thumbnails} thumbnail ideas on the following topic and video plan:
 
-Topic: {topic}
+Task Description: {task_description}
 
 Video plan: {video_plan}
 """

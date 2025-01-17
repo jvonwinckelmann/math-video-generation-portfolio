@@ -9,6 +9,57 @@ Das Ziel des Projekts war die Erprobung verschiedener Sprachmodelle zur Generier
 
 Dabei sollte ein Fokus auf die Verwendung von Open-Source und Open-Weight Modellen gesetzt werden, um größmögliche Kontrolle über die Modelle in der Pipeline zu haben und Kosten zu reduzieren.
 
+### Beispiele
+Im Ordner `Assets/Examples` sind einige schlechte und ein paar weniger etwas bessere Beispiele der Video- und Thumbnailgenerierung zu begutachten.
+
+Insbesondere die Diffusion Modelle zur Bildgenerierung bekommen z.B. keine rechten Winkel in Dreiecken hin, egal ob mit eigenen Prompts oder vom LLM generiert, was ein großer negativer Einflussfaktor bei Videos Geometriethemen ist.
+
+### Ausführen der Pipeline
+Um die Pipeline auszuführen müssen genügend Ressourcen verfügbar sein (etwa die Cloud-Instanz mit A40 GPU). Außerdem müssen `Python`, `Ollama` und `Docker` installiert sein.
+
+#### Python
+Auf dem System oder in einer virtuellen Umgebung müssen die Requirements installiert werden:
+
+```bash 
+pip install -r requirements.txt
+```
+
+Wichtig für die Verwendung des quantisierten Shuttle-3.1-Aesthetic Modells ist hierbei die Installation von `gguf`, was auch in der `requirements.txt` enthalten sein sollte:
+
+```bash 
+pip install -U gguf
+```
+
+#### Ollama
+Die einzelnen Modelle müssen zuvor gepullt werden.
+
+```bash
+ollama pull phi4
+
+ollama pull qwen2.5-coder:latest
+
+ollama pull qwen2.5-coder:14b
+
+ollama pull llama3.2-vision:latest
+```
+
+#### Docker
+Es wird das [Docker Image der Manim Community](https://docs.manim.community/en/stable/installation/docker.html) verwendet.
+
+Docker Befehle können über `subprocess` nicht per `sudo` ausgeführt werden. Daher muss zuvor ein Docker User angelegt werden (auf der Cloud-Instanz bereits geschehen):
+
+```bash
+sudo groupadd docker
+
+sudo usermod -aG docker $USER
+
+newgrp docker
+```
+
+Gefolgt von einem Logout oder Neustart, sollte das auf einem neuen System erledigen.
+
+Ist alles installiert können Pipeline_Part_1, Pipeline_Part_2 und Pipeline_Part_3 nacheinander ausgeführt werden. Bei Part_2 und Part_3 sollten maximal im Settings Dictionary Änderungen vorgenommen werden. Pipeline_Part_1 hat Spielraum bei der `task_description` und `use_rag`, was RAG optional zu oder abschaltet.
+
 ### Projektstruktur
 Das Projekt orientiert sich an dem nachfolgenden Flussdiagramm mit einigen Änderungen, die seit der Vorstellung der Idee in der Abschlusspräsentation des Kurses aufgekommen sind.
 

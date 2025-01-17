@@ -1,6 +1,7 @@
 import re
 from typing import List
 
+
 class SystemPrompts:
     def __init__(self):
         self.INITIAL_CODE_GENERATION = """
@@ -263,7 +264,7 @@ Requirements:
 - Confirm text readability
 
 Please provide only the complete fixed code without any explanations.""".strip()
-        
+
     def get_params(self, prompt_name: str) -> List[str]:
         """
         Extract all placeholder parameters from a given prompt template.
